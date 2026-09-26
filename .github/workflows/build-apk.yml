@@ -5,7 +5,7 @@ on:
   push:
     branches: [ main ]
     paths:
-      - 'HiddenBadge_Spine_Mobile_GitHub_Upload_Pack.zip'
+      - 'HiddenBadge_Spine_Mobile_GitHub_Upload_Pack_v1.2.zip'
       - '.github/workflows/build-apk.yml'
 
 permissions:
@@ -42,7 +42,7 @@ jobs:
         run: |
           rm -rf pack mobile-project
           mkdir -p pack mobile-project
-          unzip -q HiddenBadge_Spine_Mobile_GitHub_Upload_Pack.zip -d pack
+          unzip -q HiddenBadge_Spine_Mobile_GitHub_Upload_Pack_v1.2.zip -d pack
           unzip -q pack/UPLOAD_TO_REPO/HiddenBadgeSpineMobileProject.zip -d mobile-project
           ls -la mobile-project
 
