@@ -17,33 +17,48 @@ jobs:
     timeout-minutes: 25
 
     steps:
-      - name: Checkout repository
+      - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Set up Java 17
-        uses: actions/setup-java@v4
+      - name: Java 17
+        uses: actions/setup-java@v5
         with:
           distribution: temurin
           java-version: '17'
 
-      - name: Set up Android SDK
-        uses: android-actions/setup-android@v3
+      - name: Install Android SDK 35
+        run: |
+          yes | "$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager" --licenses >/dev/null || true
+          "$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager" \
+            "platforms;android-35" \
+            "build-tools;35.0.0"
 
-      - name: Install Android 35 SDK
-        run: sdkmanager "platforms;android-35" "build-tools;35.0.0"
-
-      - name: Set up Gradle 8.9
+      - name: Gradle 8.9
         uses: gradle/actions/setup-gradle@v4
         with:
           gradle-version: '8.9'
 
-      - name: Unpack uploaded pack
+      - name: Unpack project
         run: |
           rm -rf pack mobile-project
           mkdir -p pack mobile-project
           unzip -q HiddenBadge_Spine_Mobile_GitHub_Upload_Pack.zip -d pack
           unzip -q pack/UPLOAD_TO_REPO/HiddenBadgeSpineMobileProject.zip -d mobile-project
+          ls -la mobile-project
 
-      - name: Build debug APK
+      - name: Build APK
         working-directory: mobile-project
-        run: gradle --
+        run: gradle --no-daemon assembleDebug
+
+      - name: Prepare APK
+        run: |
+          cp mobile-project/app/build/outputs/apk/debug/app-debug.apk \
+             HiddenBadge-Spine-Mobile-debug.apk
+
+      - name: Upload APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: HiddenBadge-Spine-Mobile-APK
+          path: HiddenBadge-Spine-Mobile-debug.apk
+          if-no-files-found: error
+          retention-days: 14
